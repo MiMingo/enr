@@ -17,7 +17,7 @@ export default {
   name: 'NotFound',
   data: function () {
     return {
-      msg: '404'
+      msg: 'Election Night Reporting'
     }
   }
 }

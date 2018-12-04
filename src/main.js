@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './app.vue'
 import Index from './routes/index.vue'
+import Proof from './routes/proof.vue'
 import NotFound from './routes/404.vue'
 
 // Use Vue-Bootstrap
@@ -17,6 +18,7 @@ Vue.use(VueRouter)
 // Register Routes
 const routes = [
   { path: '', component: Index },
+  { path: '/proof', component: Proof},
   { path: '*', component: NotFound }
 ]
 

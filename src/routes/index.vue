@@ -16,9 +16,9 @@
 <script>
 export default {
   name: 'Index',
-  data: function () {
+  data: () => {
     return {
-      msg: 'Election Night Reporting'
+      msg: 'enr'
     }
   }
 }
