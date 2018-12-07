@@ -6,7 +6,7 @@
           <b-jumbotron>
             <template slot="header">{{msg}}</template>
             <p>{{aggregate}}</p>
-            <p>{{data}}</p>
+            <p>{{data.bb_json[0][0].postMessage.messageText}}</p>
           </b-jumbotron>
         </b-col>
       </b-row>
@@ -21,20 +21,21 @@ export default {
     return {
       msg: 'enr',
       data: null,
-      aggregate: null
+      bb_json: null
     }
   },
   methods: {
-    bbjson: function() {
+    getData: function() {
       let url = 'samples/bbjson'
       this.$http
         .get(url)
         .then(response => {
           this.data = response.body
+          this.bb_json = this.data.bbjson[0]
         })
         .catch(console.error)
     },
-    template: function() {
+    getTemplate: function() {
       let url = 'template/merged'
       this.$http
         .get(url)
@@ -44,9 +45,19 @@ export default {
         .catch(console.error)
     }
   },
+  computed: {
+    aggregate: function() {
+      if (this.data == null || this.template == null) 
+        return
+
+      this.bb_json.forEach(tape => {
+        this.aggregate.ballots_cast += tape.ballots_cast
+      })
+    }
+  },
   mounted() {
-    this.bbjson()
-    this.template()
+    this.getData()
+    this.getTemplate()
   }
 }
 </script>
