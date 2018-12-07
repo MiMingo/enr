@@ -15,6 +15,11 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
+// vue-resource: for http request wrappers
+import VueResource from 'vue-resource'
+Vue.use(VueResource);
+Vue.http.options.root = 'http://localhost:8080/api';
+
 // Register Routes
 const routes = [
   { path: '', component: Index },
