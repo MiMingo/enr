@@ -12,6 +12,10 @@
         <p>author-signed hash: <span class='text-secondary'>{{s_a}}</span></p>
         <p>board timestamp: <span class='text-secondary'>{{t_b}}</span></p>
         <p>board-signed hash: <span class='text-secondary'>{{s_b}}</span></p>
+        <br><br>
+        <div>
+          {{blockMessage}}
+        </div>
       </div>
     </b-card>
   </div>
@@ -34,6 +38,9 @@ import moment from 'moment'
  * }
  */
 export default {
+  name: 'Block',
+  // NOTE: NEED TO ADD VALIDATION FOR THE FORMAT OF 'blockMessage'
+  props: ['blockMessage'],
   data: () => {
     return {
       t_a: moment("2018-11-19T12:00:00"),
