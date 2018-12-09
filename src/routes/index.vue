@@ -3,21 +3,15 @@
     <b-container>
       <b-row>
         <b-col>
-          <b-jumbotron>
-            <template slot="header">{{msg}}</template>
-            <p>{{aggregate}}</p>
-            <hr/>
-            <p>{{results}}</p>
-            <hr/>
-            <p>{{tables}}</p>
-          </b-jumbotron>
+          <h1 class='text-center my-5'>Election Results</h1>
+          <h2 class='mb-3'>Governor</h2>
+          <StatewideRaceResults class='mb-5' v-if="tables" :table="tables.Governor"></StatewideRaceResults>
 
-          <h1 class='text-center'>Georgia Election Results</h1>
-          <h2>Governor</h2>
-          <GovernorResults v-if="tables" :table="tables.Governor"></GovernorResults>
+          <h2 class='mb-3'>U.S. House</h2>
+          <DistrictwideRaceResults class='mb-5' v-if="tables" :table="tables.House"></DistrictwideRaceResults>
 
-          <h2>U.S. House</h2>
-          <h2>U.S. Senate</h2>
+          <h2 class='mb-3'>U.S. Senate</h2>
+          <DistrictwideRaceResults class='mb-5' v-if="tables" :table="tables.Senate"></DistrictwideRaceResults>
         </b-col>
       </b-row>
     </b-container>
@@ -25,16 +19,22 @@
 </template>
 
 <script>
-import GovernorResults from '../components/governor-results.vue'
+import StatewideRaceResults from '../components/statewide-race-results.vue'
+import DistrictwideRaceResults from '../components/districtwide-race-results.vue'
 export default {
   name: 'Index',
-  components: {GovernorResults},
+  components: {StatewideRaceResults, DistrictwideRaceResults},
   data: () => {
     return {
       msg: 'enr',
       data: null,
       template: null,
       refreshInterval: null,
+      colors: {
+        'D': 'primary',
+        'R': 'danger',
+        'L': 'success'
+      },
       party: {
         "Hank Johnson": 'D',
         "Joe Profit": 'R',
@@ -63,10 +63,10 @@ export default {
       this.$http
         .get(url)
         .then(response => {
+          console.log('retrieved bb.json')
           this.data = []
           let json = response.body.bb_json[0]
           for (let i in json) {
-            console.log(JSON.parse(json[i].postMessage.messageText))
             this.data.push(JSON.parse(json[i].postMessage.messageText))
           }
         })
@@ -146,34 +146,40 @@ export default {
       for (let race of Object.keys(this.aggregate.races)) {
         res[race] = {}
         if (this.statewide[race]) {
-          res[race].total = 0
+          res[race].meta = {total: 0, errors: []}
           for (let dist of Object.keys(this.aggregate.races[race])) {
             for (let cand of Object.keys(this.aggregate.races[race][dist].precinct1)) {
               if (!res[race].hasOwnProperty(cand))
                 res[race][cand] = 0
 
-              let cand_votes = this.getVotes(race, dist, cand).votes
+              let vote_resp = this.getVotes(race, dist, cand)
+              let cand_votes = vote_resp.votes
+              if (vote_resp.errors.length) {
+                res[race].meta.errors.push(vote_resp.errors)
+              }
               res[race][cand] += cand_votes
-              res[race].total += cand_votes
+              res[race].meta.total += cand_votes
             }
           }
         }
         else {
           for (let dist of Object.keys(this.aggregate.races[race])) {
-            res[race][dist] = {total: 0}
+            res[race][dist] = {meta: {total: 0, errors: []}}
             for (let cand of Object.keys(this.aggregate.races[race][dist].precinct1)) {
               if (!res[race][dist].hasOwnProperty(cand))
                 res[race][dist][cand] = 0
 
-              let cand_votes = this.getVotes(race, dist, cand).votes
+              let vote_resp = this.getVotes(race, dist, cand)
+              let cand_votes = vote_resp.votes
+              if (vote_resp.errors.length)
+                res[race][dist].meta.errors.push(vote_resp.errors)
               res[race][dist][cand] += cand_votes
-              res[race][dist].total += cand_votes
+              res[race][dist].meta.total += cand_votes
             }
           }
         }
 
       }
-      console.log(res)
       return res
     },
     tables: function() {
@@ -188,56 +194,74 @@ export default {
           tbls[race] = {
             'fields': [
               {key: 'candidate', label: 'Candidate'}, 
-              {key: 'party', label: 'Party'}, 
-              {key: 'votes', label: 'Votes', sortable: true}, 
-              {key: 'pct', label: 'Pct'}
+              {key: 'votes', label: 'Votes'}, 
+              {key: 'pct', label: 'Pct (%)'},
+              {key: 'errors', label: ' '}
             ],
             'items': []
           }
           for (let cand of Object.keys(this.results[race])) {
-            if (/total/.test(cand)) continue
-            tbls[race].items.push({
+            if (/meta/.test(cand)) continue
+            let row = {
               'candidate': cand,
               'votes': this.results[race][cand],
               'party': this.party[cand],
-              'pct': this.results[race][cand] / this.results[race].total
-            })
+              'pct': this.results[race][cand] / this.results[race].meta.total,
+              'errors': this.results[race].meta.errors
+            }
+            if (row.pct > 0.5) {
+              row._cellVariants = {candidate: this.colors[row.party]}
+            }
+            tbls[race].items.push(row)
           }
         } // statewide
         else {
           tbls[race] = {
-            'fields': ['District', 'Winning Candidate', 'Losing Candidate'],
+            'fields': [
+              {key: 'district', label: 'District'},
+              {key: 'winner', label: 'Winning Candidate'},
+              {key: 'loser', label: 'Losing Candidate'},
+              {key: 'errors', label: ' '}
+            ],
             'items': []
           }
 
           for (let dist of Object.keys(this.results[race])) {
             let cands = []
+            let _cellVariants = {}
             for (let cand of Object.keys(this.results[race][dist])) {
-            if (/total/.test(cand)) continue
-              cands.push({
+              if (/meta/.test(cand)) continue
+              let crow = {
+                'district': dist,
                 'candidate': cand,
                 'votes': this.results[race][dist][cand],
                 'party': this.party[cand],
-                'pct': this.results[race][dist][cand] / this.results[race][dist].total
-              })
-              cands.sort((a, b) => -(a.votes - b.votes))
-    
+                'pct': this.results[race][dist][cand] / this.results[race][dist].meta.total,
+              }
+              if (crow.pct > 0.5) {
+                _cellVariants = {winner: this.colors[crow.party]}
+              }
+              cands.push(crow)
             }
+            cands.sort((a, b) => -(a.votes - b.votes))
             tbls[race].items.push({
               district: dist,
               winner: cands[0],
-              loser: cands[1]
+              loser: cands[1],
+              errors: this.results[race][dist].meta.errors,
+              _cellVariants
             })
           }
         }
       }
-
-      console.log(tbls)
       return tbls
     }
   },
   mounted() {
     this.getData()
+    this.refreshInterval = setInterval(() => {
+      this.getData()
+    }, 10000)
     this.getTemplate()
   }
 }
