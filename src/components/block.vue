@@ -2,23 +2,22 @@
   <div>
     <b-card>
       <template slot='header'>
-        <h5>{{h_i}}</h5>
-        <h6 class='text-secondary'>{{t_a.format()}}</h6>
+        <h5>Block {{blockIndex + 1}}</h5>
+        <h6 class='text-secondary'>{{(blockMessage["postWrittenTime"])}}</h6>
       </template>
       <div class='card-text'>
-        <p>author: <span class='text-danger'>{{a}}</span></p>
-        <p>message: <span class='text-secondary'>{{m}}</span></p>
-        <p>hash: <span class='text-secondary'>{{h_i}}</span></p>
-        <p>author-signed hash: <span class='text-secondary'>{{s_a}}</span></p>
-        <p>board timestamp: <span class='text-secondary'>{{t_b}}</span></p>
-        <p>board-signed hash: <span class='text-secondary'>{{s_b}}</span></p>
+        <p>author: <span class='text-danger'>{{blockMessage['postWriter']['authorName']}}</span></p>
+        <p>message: <span class='text-secondary'>{{blockMessage['postMessage']}}</span></p>
+        <p>hash: <span class='text-secondary'>{{blockMessage['postBoardSig']['message'][0]['message']}}</span></p>
+        <p>author-signed hash: <span class='text-secondary'>{{blockMessage['postWriter']}}</span></p>
+        <p>board timestamp: <span class='text-secondary'>{{blockMessage['postBoardSig']['message'][1]}}</span></p>
+        <p>board-signed hash: <span class='text-secondary'>{{blockMessage['postBoardSig']}}</span></p>
         <br><br>
-        <div>
-          {{blockMessage}}
-        </div>
+  
       </div>
     </b-card>
   </div>
+  
 </template>
 
 <script>
@@ -40,13 +39,13 @@ import moment from 'moment'
 export default {
   name: 'Block',
   // NOTE: NEED TO ADD VALIDATION FOR THE FORMAT OF 'blockMessage'
-  props: ['blockMessage'],
+  props: ['blockMessage', 'blockIndex'],
   data: () => {
     return {
       t_a: moment("2018-11-19T12:00:00"),
       a: 'Nate',
       m: 'MSG_JSON',
-      h_i: 'HASH_i',
+      h_i: 'HASH',
       s_a: 'SIG_a(HASH_i)',
       t_b: moment("2018-11-19T12:01:00"),
       s_b: 'SIG_b(s_a, t_b)',
