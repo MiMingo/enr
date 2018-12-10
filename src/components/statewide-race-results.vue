@@ -15,7 +15,7 @@
     </template>
 
     <template slot="pct" slot-scope="data">
-      {{(data.item.pct*100).toFixed(2)}}
+      {{(data.item.pct*100 || 0).toFixed(2)}}
     </template>
 
     <template slot='errors' slot-scope='data'>

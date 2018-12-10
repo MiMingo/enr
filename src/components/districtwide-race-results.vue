@@ -13,7 +13,7 @@
 
     <template slot='winner' slot-scope='data'>
       <span class='mx-2'>
-        {{(100*data.item.winner.pct).toFixed(0)}}%
+        {{(100*data.item.winner.pct || 0).toFixed(0)}}%
       </span>
       {{data.item.winner.candidate}}
       <small class='text-secondary'>
@@ -23,7 +23,7 @@
 
     <template slot='loser' slot-scope='data'>
       <span class='mx-2'>
-        {{(100*data.item.loser.pct).toFixed(0)}}%
+        {{(100*data.item.loser.pct || 0).toFixed(0)}}%
       </span>
       {{data.item.loser.candidate}}
       <small class='text-secondary'>
