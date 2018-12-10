@@ -2,7 +2,10 @@
   <div>
     <!-- PASS THE LIST OF BB-POSTS --> 
     <!-- {{bbPosts}} -->
-    <h1 class='text-center my-5'>Proof of Results</h1>
+    <h1 class='text-center mt-5'>Proof of Results</h1>
+    <div class='text-center mb-5'>
+      <router-link to='/'>View Results</router-link>
+    </div>
     
     <a href="http://epubs.surrey.ac.uk/107392/5/append-only.pdf">
     <h5 class='text-center my-5'>Click here to learn more about the cryptographic details</h5></a> 

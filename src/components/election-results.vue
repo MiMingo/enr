@@ -1,6 +1,12 @@
 <template>
 <div>
   <h1 class='text-center'>Election Results</h1>
+
+  <div class='text-center mb-5'>
+    You can view the necessary information to proof the integrity of these results here:
+    <router-link to="/proof">Proof of Results</router-link>
+  </div>
+
   <h2 class='mb-3'>Governor</h2>
   <StatewideRaceResults class='mb-5' v-if="tables" :table="tables.Governor"></StatewideRaceResults>
 

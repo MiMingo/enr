@@ -69,10 +69,11 @@ export default {
           this.parseResponse(response)
         })
         .catch(response => {
-          if (response.status == 500)
+          if (response.status == 500) {
             this.corrupted = true
-          console.error(response)
-          this.parseResponse(response)
+            console.error(response)
+            this.parseResponse(response)
+          }
         })
     },
     getTemplate: function() {
@@ -174,8 +175,9 @@ export default {
 
               let vote_resp = this.getVotes(race, dist, cand)
               let cand_votes = vote_resp.votes
-              if (vote_resp.errors.length)
+              if (vote_resp.errors.length) {
                 res[race][dist].meta.errors.push(vote_resp.errors)
+              }
               res[race][dist][cand] += cand_votes
               res[race][dist].meta.total += cand_votes
             }
