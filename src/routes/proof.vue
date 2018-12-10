@@ -7,6 +7,7 @@
     <BlockChain v-bind:blocks="bbPosts['bb_json'][0]">
 
     </BlockChain>
+    <!-- {{bbPosts}} -->
   </div>
 </template>
 8
@@ -25,7 +26,7 @@ export default {
     // Acquire Data from Bulletin Board
     getBBPosts: function () {
       // TODO: REPLACE THIS WITH 'bulletin' ENDPOINT AFTER TESTING
-      let url = 'samples/bbjson';
+      let url = 'bulletin';
 
       // UPDATED: Using Vue-Resource Library 
       this.$http.get(url).then(response => {

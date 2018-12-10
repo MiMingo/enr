@@ -1,7 +1,7 @@
 <template>
     <div>
         <!--test of rendering multiple child components using v-for with range-->
-        {{blocks}}
+        
         <Block v-for="block in blocks"
         v-bind:blockMessage="block">
 
