@@ -21,7 +21,7 @@
     <template slot='errors' slot-scope='data'>
       <i 
         v-if='data.item.errors.length' 
-        class='icon ion-ios-warning text-danger'
+        class='icon ion-ios-warning text-warning'
         v-b-tooltip.hover
         title='There are discrepancies in the posted ballots for this race.'
       ></i>

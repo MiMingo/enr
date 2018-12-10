@@ -1,17 +1,10 @@
 <template>
   <div id="app">
-    <b-container>
+    <b-container class='my-5'>
       <b-row>
         <b-col>
-          <h1 class='text-center my-5'>Election Results</h1>
-          <h2 class='mb-3'>Governor</h2>
-          <StatewideRaceResults class='mb-5' v-if="tables" :table="tables.Governor"></StatewideRaceResults>
-
-          <h2 class='mb-3'>U.S. House</h2>
-          <DistrictwideRaceResults class='mb-5' v-if="tables" :table="tables.House"></DistrictwideRaceResults>
-
-          <h2 class='mb-3'>U.S. Senate</h2>
-          <DistrictwideRaceResults class='mb-5' v-if="tables" :table="tables.Senate"></DistrictwideRaceResults>
+          <CorruptionWarning v-if="corrupted" :tables="tables"></CorruptionWarning>
+          <ElectionResults v-else :tables="tables"></ElectionResults>
         </b-col>
       </b-row>
     </b-container>
@@ -19,14 +12,15 @@
 </template>
 
 <script>
-import StatewideRaceResults from '../components/statewide-race-results.vue'
-import DistrictwideRaceResults from '../components/districtwide-race-results.vue'
+import CorruptionWarning from '../components/corruption-warning.vue'
+import ElectionResults from '../components/election-results.vue'
+
 export default {
   name: 'Index',
-  components: {StatewideRaceResults, DistrictwideRaceResults},
+  components: {CorruptionWarning, ElectionResults},
   data: () => {
     return {
-      msg: 'enr',
+      corrupted: false,
       data: null,
       template: null,
       refreshInterval: null,
@@ -58,19 +52,28 @@ export default {
     }
   },
   methods: {
+    parseResponse: function(response) {
+      this.data = []
+      let json = response.body.bb_json[0]
+      for (let i in json) {
+        this.data.push(JSON.parse(json[i].postMessage.messageText))
+      }
+    },
     getData: function() {
       let url = 'bulletin'
       this.$http
         .get(url)
         .then(response => {
           console.log('retrieved bb.json')
-          this.data = []
-          let json = response.body.bb_json[0]
-          for (let i in json) {
-            this.data.push(JSON.parse(json[i].postMessage.messageText))
-          }
+          this.corrupted = false
+          this.parseResponse(response)
         })
-        .catch(console.error)
+        .catch(response => {
+          if (response.status == 500)
+            this.corrupted = true
+          console.error(response)
+          this.parseResponse(response)
+        })
     },
     getTemplate: function() {
       let url = 'template/merged'
@@ -180,6 +183,7 @@ export default {
         }
 
       }
+      console.log(res)
       return res
     },
     tables: function() {
